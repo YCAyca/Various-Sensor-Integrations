@@ -40,8 +40,8 @@
                                   information is calculated, it is already delayed to start the stop operation. 
                                   So, preparing "30 degree left turned" information, causes delays for stopping after exactly 
                                   30 degree left turned. To avoid this error, while running each degree turning function 
-                                  (Turn_Left_TD or Turn_Right_TD) calls the Yaw_Calibration () function in the Run_Components.c file 
-                                  in the background. This function determines a YAW_CALIBRATION_COEFFICIENT value, 
+                                  (Turn_Left_TD or Turn_Right_TD) calls the Yaw_Calibration () function in the Run_System_Components.c 
+                                  file in the background. This function determines a YAW_CALIBRATION_COEFFICIENT value, 
                                   depending on the size of the expected range (expected_gyro_degree), and 
                                   execute the motors stop command without waiting until the expected_gyro_degree 
                                   is reached when expected_gyro_degree - YAW_CALIBRATION_COEFFICIENT is reached.
