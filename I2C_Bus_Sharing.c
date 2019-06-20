@@ -1,20 +1,23 @@
 /*  It's the source code of I2C_Bus_Sharing of these embedded system. 
 
-    I2C_Task() function make transmit data in microprossor -> component & component -> microprossor ways. 
-    The function waits in I2C_START case until the first data transfer in the bus progressed. When the transmission 
-    starts, the function passes to the I2C_TRANSMIT case. When the related data is written in the related register 
-    of a sensor or the data is read from related register, the function enters in I2C_DONE case. It means the bus is 
-    free now.
+    I2C_Task() 		   : This function make transmit data in microprossor -> component & component -> microprossor ways. 
+   		  	     The function waits in I2C_START case until the first data transfer in the bus progressed. 
+			     When the transmission starts, the function passes to the I2C_TRANSMIT case. When the related 
+			     data is written in the related register of a sensor or the data is read from related register, 
+			     the function enters in I2C_DONE case. It means the bus is free now.
    
-    I2C_Done() function prevents that another sensor from who having the bus, uses the bus, 
-    until it finishes its work in this system tour (transmits the necessary information to the microprocessor and 
-    receives the necessary answers). This prevents the sensors from interrupting each other's communication. 
-    If the bus is idle, the function returns true so that the next sensor receives the bus. So all sensors use the bus in sequence.
+    I2C_Done() 		    : This function prevents that another sensor from who having the bus, uses the bus, 
+    		  	      until it finishes its work in this system tour (transmits the necessary information 
+			      to the microprocessor and receives the necessary answers). This prevents the sensors
+			      from interrupting each other's communication. If the bus is idle, the function returns 
+			      true so that the next sensor receives the bus. So all sensors use the bus in sequence.
 
-    In this platform there is a IOEX Driver (who controls motors), a LED Driver(who controls leds) an Accelerometer & Gyro Sensor and a 
-    proxy sensor who needs to use I2C Bus for data transfering with microprocessor. Therefore the Run_System_Components() function
-    make these sensors use I2C Bus sequentially with the help of I2C_Done() function. When a component have the bus, it start to use its
-    own task function to program itself in the right way. The task functions is decribed in Components_Task_Function.c file
+    Run_System_Components() : In this platform there is a IOEX Driver (who controls motors), a LED Driver(who controls leds) 
+    			      an Accelerometer & Gyro Sensor and a proxy sensor who needs to use I2C Bus for data transfering 
+			      with microprocessor. Therefore the Run_System_Components() function make these sensors use 
+			      I2C Bus sequentially with the help of I2C_Done() function. When a component have the bus, 
+			      it start to use its own task function to program itself in the right way. The task functions 
+			      is decribed in Components_Task_Function.c file
 */
 
 void I2C_Task(void)
