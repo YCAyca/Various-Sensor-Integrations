@@ -1,3 +1,16 @@
+/* It's the source code of I2C_Bus_Sharing of these embedded system. 
+   
+   In these purpose, I2C_Done() function prevents that another sensor from who having the bus, uses the bus, 
+   until it finishes its work in this system tour (transmits the necessary information to the microprocessor and 
+   receives the necessary answers). This prevents the sensors from interrupting each other's communication. 
+   If the bus is idle, the function returns true so that the next sensor receives the bus. So all sensors use the bus in sequence.
+
+    In this platform there is a IOEX Driver (who controls motors), a LED Driver(who controls leds) an Accelerometer & Gyro Sensor and a 
+    proxy sensor who needs to use I2C Bus for data transfering with microprocessor. Therefore the Run_System_Components() function
+    make these sensors use I2C Bus sequentially with the help of I2C_Done() function. When a component have the bus, it start to use its
+    own task function to program itself in the right way. The task functions is decribed in Components_Task_Function.c file
+*/
+
 bool I2C_Done(COM_TYPE commtype)
 {
     bool result = false;
@@ -36,20 +49,7 @@ bool I2C_Done(COM_TYPE commtype)
                     result = true;
                 }
                 break;
-            }
-            case USART1W:
-            {    
-                if ((STATUS_FLAGS.TASKFLAGREG == 0 || STATUS_FLAGS.usart1wtasks == 1))
-                    result = true;
-                break;
-            }     
-
-            case USART1R:
-            {    
-                if ((STATUS_FLAGS.TASKFLAGREG == 0 || STATUS_FLAGS.usart1rtasks == 1))
-                    result = true;
-                break;
-            }                      
+            }                
         }
     }
     return result;
