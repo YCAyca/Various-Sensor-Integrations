@@ -1,0 +1,670 @@
+/* These are the functions that allow us to find out which function is currently running, 
+which function is waiting in line, whether a function is performed and deleted from the buffer 
+by ordering user functions through a buffer queue. At the same time, it is the queue structures 
+that provide function tracking with operations such as buffer emptying, reaching / deleting 
+the desired function in the queue according to different conditions. */
+
+uint8_t Enqueue(FIFO_type fifotype, const char *func_name, int num_args, ...)
+{ 
+    switch(fifotype)
+    {
+        case(BUZZER):
+        {
+            if(efi_id == 255)
+            efi_id = 0;
+
+            if(efi_table[efi_id]) 
+                efi_table[efi_id] = false;
+
+            if(!strcmp(func_name, "Buzzer_Volume"))
+            {
+                if(!IsFifoFull(BUZZER))
+                {
+                   uint8_t next= FIFO_size(BUZZER);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+
+                    buzzer_fifo[next].fifoinf.function_name = "Buzzer_Volume";
+                    buzzer_fifo[next].fifoinf.type = BUZZER;
+                    buzzer_fifo[next].fifoinf.IsAny = true;
+                    buzzer_fifo[next].param8 = temp[0];    
+                    buzzer_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return buzzer_fifo[next].efid;
+                } 
+                else
+                    return EFID_ERROR;
+            }  
+            else if (!strcmp(func_name, "Buzzer_Note"))
+            {
+                if(!IsFifoFull(BUZZER))
+                {
+                   uint8_t next= FIFO_size(BUZZER);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+
+                    buzzer_fifo[next].fifoinf.function_name = "Buzzer_Note";
+                    buzzer_fifo[next].fifoinf.type = BUZZER;
+                    buzzer_fifo[next].fifoinf.IsAny = true;
+                    buzzer_fifo[next].param8 = temp[0];
+                    buzzer_fifo[next].time = temp[1];
+                    buzzer_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return buzzer_fifo[next].efid;
+                } 
+                else
+                    return EFID_ERROR;
+            } 
+            else if (!strcmp(func_name, "Buzzer_Stop"))
+            {
+                if(!IsFifoFull(BUZZER))
+                {
+                    uint8_t next = FIFO_size(BUZZER);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+
+                    buzzer_fifo[next].fifoinf.function_name = "Buzzer_Stop";
+                    buzzer_fifo[next].fifoinf.type = BUZZER;
+                    buzzer_fifo[next].fifoinf.IsAny = true;
+                    buzzer_fifo[next].time = temp[0];
+                    buzzer_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return buzzer_fifo[next].efid;
+                } 
+                else
+                    return EFID_ERROR;
+            }    
+        
+        }   
+        case (LEDFRONT):
+        {
+            if(efi_id == 255)
+            efi_id = 0;
+
+            if(efi_table[efi_id]) 
+                efi_table[efi_id] = false;
+
+            if (!strcmp(func_name, "HeadLight")) 
+            {
+                if(!IsFifoFull(LEDFRONT))
+                {    
+                   uint8_t next= FIFO_size(LEDFRONT);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    ledfront_fifo[next].fifoinf.function_name = "HeadLight";
+                    ledfront_fifo[next].fifoinf.type = LEDFRONT;
+                    ledfront_fifo[next].fifoinf.IsAny = true;
+                    ledfront_fifo[next].param1 = temp[0];
+                    ledfront_fifo[next].time = temp[1];
+                    ledfront_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledfront_fifo[next].efid;
+                }
+                return EFID_ERROR;
+            }
+            else if (!strcmp(func_name, "Turn_Off_HeadLight")) 
+            {
+                if(!IsFifoFull(LEDFRONT))
+                {    
+                   uint8_t next= FIFO_size(LEDFRONT);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    ledfront_fifo[next].fifoinf.function_name = "Turn_Off_HeadLight";
+                    ledfront_fifo[next].fifoinf.type = LEDFRONT;
+                    ledfront_fifo[next].fifoinf.IsAny = true;
+                    ledfront_fifo[next].time = temp[0];
+                    ledfront_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledfront_fifo[next].efid;
+                }
+                return EFID_ERROR;
+            }
+
+        }    
+        case(LEDTOP):
+        {
+            if(efi_id == 255)
+                efi_id = 0;
+    
+            if(efi_table[efi_id])
+                efi_table[efi_id] = false;
+
+            if (!strcmp(func_name, "Led_Top"))
+            {  
+                if(!IsFifoFull(LEDTOP))
+                {
+                   uint8_t next= FIFO_size(LEDTOP);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    ledtop_fifo[next].fifoinf.function_name = "Led_Top";
+                    ledtop_fifo[next].param1 = temp[0];
+                    ledtop_fifo[next].param2 = temp[1];
+                    ledtop_fifo[next].param3 = temp[2];
+                    ledtop_fifo[next].time = temp[3];
+                    ledtop_fifo[next].fifoinf.type = LEDTOP;
+                    ledtop_fifo[next].fifoinf.IsAny = true;
+                    ledtop_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledtop_fifo[next].efid;
+                }
+                return EFID_ERROR;
+
+            }    
+
+            else if (!strcmp(func_name, "Led_Top_Increase"))
+            {
+                if(!IsFifoFull(LEDTOP))
+                {
+                   uint8_t next= FIFO_size(LEDTOP);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+
+                    ledtop_fifo[next].fifoinf.function_name = "Led_Top_Increase";
+                    ledtop_fifo[next].param4 = temp[0];
+                    ledtop_fifo[next].time = temp[1];
+                    ledtop_fifo[next].fifoinf.type = LEDTOP;
+                    ledtop_fifo[next].fifoinf.IsAny = true;
+                    ledtop_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledtop_fifo[next].efid;
+                }
+                return EFID_ERROR;
+            }    
+
+            if (!strcmp(func_name, "Turn_Off_Top"))
+            {
+                if(!IsFifoFull(LEDTOP))
+                {
+                   uint8_t next= FIFO_size(LEDTOP);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int); 
+                    va_end(parameters);
+
+                    ledtop_fifo[next].fifoinf.function_name = "Turn_Off_Top";
+                    ledtop_fifo[next].time = temp[0];
+                    ledtop_fifo[next].fifoinf.type = LEDTOP;
+                    ledtop_fifo[next].fifoinf.IsAny = true;
+                    ledtop_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledtop_fifo[next].efid;
+                }
+                return EFID_ERROR;
+            }
+        }    
+        case (LEDUSER):
+        {
+            if(efi_id == 255)
+                efi_id = 0;
+
+            if(efi_table[efi_id])
+                efi_table[efi_id] = false;
+
+            if (!strcmp(func_name, "Led_User")) 
+            {
+                if(!IsFifoFull(LEDUSER))
+                {    
+                   uint8_t next= FIFO_size(LEDUSER);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    leduser_fifo[next].fifoinf.function_name = "Led_User";
+                    leduser_fifo[next].fifoinf.type = LEDUSER;
+                    leduser_fifo[next].fifoinf.IsAny = true;
+                    leduser_fifo[next].param1 = temp[0];
+                    leduser_fifo[next].time = temp[1];
+                    leduser_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return leduser_fifo[next].efid;
+                return EFID_ERROR;
+                }
+            }
+            else if (!strcmp(func_name, "Turn_Off_Led_User")) 
+            {
+                if(!IsFifoFull(LEDUSER))
+                {    
+                   uint8_t next= FIFO_size(LEDUSER);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    leduser_fifo[next].fifoinf.function_name = "Turn_Off_Led_User";
+                    leduser_fifo[next].fifoinf.type = LEDUSER;
+                    leduser_fifo[next].fifoinf.IsAny = true;
+                    leduser_fifo[next].time = temp[0];
+                    leduser_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return leduser_fifo[next].efid;
+                }
+                return EFID_ERROR;
+            }
+        }    
+        case (LEDBOTTOM):        
+        {
+            if(efi_id == 255)
+                efi_id = 0;
+
+            if(efi_table[efi_id]) 
+                efi_table[efi_id] = false;
+
+            if (!strcmp(func_name, "Led_Bottom"))
+            {
+                if(!IsFifoFull(LEDBOTTOM))
+                {
+                   uint8_t next= FIFO_size(LEDBOTTOM);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+
+                    ledbottom_fifo[next].fifoinf.function_name = "Led_Bottom";
+                    ledbottom_fifo[next].param1 = temp[0];
+                    ledbottom_fifo[next].param2 = temp[1];
+                    ledbottom_fifo[next].param3 = temp[2];
+                    ledbottom_fifo[next].time = temp[3];
+                    ledbottom_fifo[next].fifoinf.type = LEDBOTTOM;
+                    ledbottom_fifo[next].fifoinf.IsAny = true;
+                    ledbottom_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledbottom_fifo[next].efid;
+                }
+                else
+                    return EFID_ERROR;
+            }    
+
+            else if (!strcmp(func_name, "Led_Bottom_Increase"))    
+            {
+                if(!IsFifoFull(LEDBOTTOM))
+                {
+                   uint8_t next= FIFO_size(LEDBOTTOM);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int); 
+                    va_end(parameters);
+
+
+                    ledbottom_fifo[next].fifoinf.function_name = "Led_Bottom_Increase";
+                    ledbottom_fifo[next].param4 = temp[0];
+                    ledbottom_fifo[next].time = temp[1];
+                    ledbottom_fifo[next].fifoinf.type = LEDBOTTOM;
+                    ledbottom_fifo[next].fifoinf.IsAny = true;
+                    ledbottom_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledbottom_fifo[next].efid;
+                }
+                else 
+                    return EFID_ERROR;
+            }
+
+            else if (!strcmp(func_name, "Turn_Off_Bottom"))
+            {
+                if(!IsFifoFull(LEDBOTTOM))
+                {
+                   uint8_t next= FIFO_size(LEDBOTTOM);
+                    va_list parameters;
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                        temp[i] = va_arg(parameters, int);
+                    va_end(parameters);
+
+                    ledbottom_fifo[next].fifoinf.function_name = "Turn_Off_Bottom";
+                    ledbottom_fifo[next].time = temp[0];
+                    ledbottom_fifo[next].fifoinf.type = LEDBOTTOM;
+                    ledbottom_fifo[next].fifoinf.IsAny = true;
+                    ledbottom_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return ledbottom_fifo[next].efid;
+                }
+                else
+                    return EFID_ERROR;
+            } 
+        } 
+        case(MOTOR):
+        {
+            if(efi_id == 255)
+                efi_id = 0;
+
+            if(efi_table[efi_id])
+                efi_table[efi_id] = false;
+
+            if (!strcmp(func_name, "Go_Ahead"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+
+                    motor_fifo[next].fifoinf.function_name = "Go_Ahead";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].time = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else
+                    return EFID_ERROR;
+            }
+
+            else if (!strcmp(func_name, "Go_Back"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Go_Back";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].time = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else
+                    return EFID_ERROR;
+            }
+
+            else if (!strcmp(func_name, "Motor_Stop"))    
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Motor_Stop";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].time = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+
+                }
+                else
+                    return EFID_ERROR;
+
+            }
+            else if(!strcmp(func_name, "Turn_Right"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Turn_Right";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].time = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }  
+                else
+                    return EFID_ERROR;
+            }   
+
+            else if(!strcmp(func_name, "Turn_Left"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+
+
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Turn_Left";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].time = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else   
+                    return EFID_ERROR;
+            }  
+
+            else if(!strcmp(func_name, "Turn_Left_To_Degree"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Turn_Left_To_Degree";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].param8 = temp[0]; 
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else   
+                    return EFID_ERROR;
+            }  
+
+            else if(!strcmp(func_name, "Turn_Right_To_Degree"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Turn_Right_To_Degree";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].param8 = temp[0];
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else  
+                    return EFID_ERROR;
+            }  
+
+            else if(!strcmp(func_name, "Turn_Back"))
+            {
+                if(!IsFifoFull(MOTOR))
+                {
+                   uint8_t next= FIFO_size(MOTOR);
+                    va_list parameters; 
+                    va_start(parameters, num_args);
+                    int i;
+                    uint16_t temp[num_args];
+                    for(i = 0; i < num_args; i++)
+                    {
+                        temp[i] = va_arg(parameters, int); 
+                    }
+                    va_end(parameters);
+                    motor_fifo[next].fifoinf.function_name = "Turn_Back";
+                    motor_fifo[next].fifoinf.type = MOTOR;
+                    motor_fifo[next].fifoinf.IsAny = true;
+                    motor_fifo[next].efid = efi_id;
+                    efi_id++;
+                    return motor_fifo[next].efid;
+                }
+                else
+                    return EFID_ERROR;
+            }
+            else  
+                return EFID_ERROR;
+        } 
+        default:
+            break;
+    }        
+}
+
+
+
+
+uint8_t Enqueue_IRDA(const char *func_name, char destination, char data_type1, char data_type2, uint8_t dataH, uint8_t dataL, uint16_t time, uint8_t pac_imp, uint8_t tr_id, char br_source, uint8_t br_id, uint8_t br_ttl) // 
+{  
+    if(efi_id == 255)
+        efi_id = 0;
+ 
+    if(efi_table[efi_id]) 
+        efi_table[efi_id] = false;
+
+
+    if (!strcmp(func_name, "USARTW_Task"))
+    {
+        if(!IsFifoFull(IRDA))
+        {
+           uint8_t next= FIFO_size(IRDA);
+            
+            irda_fifo[next].fifoinf.function_name = "USARTW_Task";
+            irda_fifo[next].fifoinf.type = IRDA;
+            irda_fifo[next].fifoinf.IsAny = true;
+            irda_fifo[next].param1 = dataH;
+            irda_fifo[next].param2 = dataL;
+            irda_fifo[next].param3 = pac_imp;
+            irda_fifo[next].param4 = destination;
+            irda_fifo[next].param5 = data_type1;
+            irda_fifo[next].param6 = data_type2;
+            irda_fifo[next].time = time;
+            irda_fifo[next].trid = tr_id;
+            irda_fifo[next].param9 = br_source;
+            irda_fifo[next].br_id = br_id;
+            irda_fifo[next].broadcast_ttl = br_ttl;
+            irda_fifo[next].efid = efi_id;
+            IRDA_WRITE = IRDA_WR_WAITING;      
+        }
+          
+        return efi_id;
+    }    
+    
+}
+
+
+
