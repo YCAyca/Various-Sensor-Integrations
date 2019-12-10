@@ -298,7 +298,7 @@ void PC_Sensor_Tasks(void)
                         sensorStates = SENSOR_PROXY_KILL;
                     else
                     {    
-                        SDAT.dataProxy = UNKNOWN_PROXY; // bu tur proxy okunmad?, bi önceki turdan kalan okunmu? de?eri güncel de?er olarak almamal? kullan?c?
+                        SDAT.dataProxy = UNKNOWN_PROXY;
                         sensorStates = SENSOR_DONE;
                     }    
                     break;
