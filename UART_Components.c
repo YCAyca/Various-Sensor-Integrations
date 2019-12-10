@@ -1,11 +1,11 @@
 /* 
-      This file includes the functions of IRDA and WIFI modules who use UART communication protocol instead of I2C.
+      This file includes the functions of IRDA and WIFI modules who use UART communication protocol.
       
 */
 
 /***** IRDA Functions ****/
 
-void IRDA_Port_Select(uint8_t irdaport) # Since it's a system having 3 IRDA ports, this function is used for select the port number to use for infrared data transfer among the robots
+void IRDA_Port_Select(uint8_t irdaport) // Since it's a system having 3 IRDA ports, this function is used for select the port number to use for infrared data transfer among the robots
 {
     switch (irdaport) 
     { 
@@ -41,13 +41,13 @@ void IRDA_Port_Select(uint8_t irdaport) # Since it's a system having 3 IRDA port
     }
 } 
 
-void IRDA_Port_Select_Auto(uint8_t irdaports, uint16_t time_period) #Makes the IRDA port selection automatically
+void IRDA_Port_Select_Auto(uint8_t irdaports, uint16_t time_period) //Makes the IRDA port selection automatically
 {
     CONTROL_BITS.autoports = irdaports;
     autoport_period = time_period;
 }
 
-uint8_t Transmit(uint8_t dest, char datatype1, char datatype2, uint16_t irda_data, uint16_t time, uint8_t pac_imp, uint8_t br_ttl) # Add the package to transmit into the Transmit_Buffer. So the packages are transmitted in order
+uint8_t Transmit(uint8_t dest, char datatype1, char datatype2, uint16_t irda_data, uint16_t time, uint8_t pac_imp, uint8_t br_ttl) // Add the package to transmit into the Transmit_Buffer. So the packages are transmitted in order
 {
     if(TRANSMISSION_ID == TRANSMISSION_ERROR - 1)
     {
@@ -91,7 +91,7 @@ uint8_t Transmit(uint8_t dest, char datatype1, char datatype2, uint16_t irda_dat
     return TRANSMISSION_ERROR;
 }
 
-void USART1R_Task (void) #The read task fonction of IRDA mechanism. With these function the robot uses the UART Bus for communicate with microprocessor and read the infrared messages in the environment 
+void USART1R_Task (void) //The read task fonction of IRDA mechanism. With these function the robot uses the UART Bus for communicate with microprocessor and read the infrared messages in the environment 
 {
     switch (usart1BQRState)
     {
@@ -193,7 +193,7 @@ void USART1R_Task (void) #The read task fonction of IRDA mechanism. With these f
 }
 
 
-void USART1W_Task (void) #The write task fonction of IRDA mechanism. With these function the robot uses the UART Bus for communicate with microprocessor and send the packages in the Transmit_Buffer as the infrared messages in the environment 
+void USART1W_Task (void) //The write task fonction of IRDA mechanism. With these function the robot uses the UART Bus for communicate with microprocessor and send the packages in the Transmit_Buffer as the infrared messages in the environment 
 {
     switch (usart1BQWState)
     {
